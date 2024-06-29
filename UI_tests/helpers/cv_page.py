@@ -2,6 +2,7 @@ import random
 
 from UI_tests.helpers.PageObjects.button import Button
 from UI_tests.helpers.PageObjects.checkbox import Checkbox
+from UI_tests.helpers.PageObjects.drop_down import DropDown
 from UI_tests.helpers.PageObjects.file_field import FileField
 from UI_tests.helpers.PageObjects.insert_field import InsertField
 from UI_tests.helpers.page import Page
@@ -14,10 +15,8 @@ class CVPage(Page):
     PHONE_FLD = 'input[name="PhoneNumber"]'
     GENDER_MALE_CHBX = 'input[name="Gender"][value="Male"]'
     GENDER_FEMALE_CHBX = 'input[name="Gender"][value="Female"]'
-    VACANCY_LSTBX = 'select[name="Vacancy"]'
-    VACANCY_OPT = {'qa_engineer': 'QA Engineer',
-                   'qaa_engineer': 'QAA Engineer',
-                   'business_analyst': 'Business Analyst', }
+    VACANCY_DROPDOWN = 'select[name="Vacancy"]'
+    VACANCY_OPTIONS = ['QA Engineer', 'QAA Engineer', 'Business Analyst']
     CV_INPUT = 'input[name="myfile"]'
     AGREEMENT_CHBX = 'input[name="Agreement"]'
     SUBMIT_BTN = 'input[name="submitbutton"]'
@@ -36,6 +35,7 @@ class CVPage(Page):
         self.gender_female_box = Checkbox(self.page, self.GENDER_FEMALE_CHBX)
 
         self.cv_input_fld = FileField(self.page, self.CV_INPUT)
+        self.vacancy_drpdwn = DropDown(self.page, self.VACANCY_DROPDOWN)
         self.agreement_box = Checkbox(self.page, self.AGREEMENT_CHBX)
         self.submit_button = Button(self.page, self.SUBMIT_BTN)
 
@@ -61,6 +61,14 @@ class CVPage(Page):
             self.gender_male_box.click()
         elif gender.lower() == 'female':
             self.gender_female_box.click()
+
+        return gender
+
+    def pick_vacancy(self, vacancy: str):
+        if vacancy.lower() == 'random':
+            vacancy = random.choice(self.VACANCY_OPTIONS)
+
+        self.vacancy_drpdwn.pick_option(vacancy)
 
     def pick_agreement(self):
         self.agreement_box.click()

@@ -3,18 +3,13 @@ import string
 
 
 def gen_random_string(length: int, str_type: str) -> str:
-    if str_type == 'n':
+    characters = []
+    if str_type == 'd':
         # Строка состоит из чисел
         characters = string.digits
     elif str_type == 'l':
         # Строка состоит из букв всех регистров
         characters = string.ascii_letters
-    elif str_type == 'lup':
-        # Строка состоит из букв всех регистров
-        characters = string.ascii_uppercase
-    elif str_type == 'llw':
-        # Строка состоит из букв нижнего регистра
-        characters = string.ascii_lowercase
     elif str_type == 'm':
         # Строка состоит из букв всех регистров и чисел
         characters = string.ascii_letters + string.digits
