@@ -103,24 +103,43 @@ class TestCVPage:
                 assert dialog_cv_form[key] == value, \
                     f'{key} value is incorrect ({dialog_cv_form[key]}). {value} awaits.'
 
-    def test_no_fields_are_filled(self,
-                                  cv_page: CVPage):
-        cv_page.press_submit_button()
+    def test_submit_no_fields_are_filled(self,
+                                         cv_page: CVPage):
+        with allure.step('check vacancy options'):
+            assert cv_page.vacancy_drpdwn.option_values == cv_page.VACANCY_OPTIONS, \
+                f'List of vacancy options ({cv_page.vacancy_drpdwn.option_values}) does not match with awaits list "{cv_page.VACANCY_OPTIONS}"'
 
-        assert ErrorMsg.not_valid_first_name_err in cv_page.page.content(), \
-            f'Text "{ErrorMsg.not_valid_first_name_err}" not found on the page'
-        assert ErrorMsg.not_valid_last_name_err in cv_page.page.content(), \
-            f'Text "{ErrorMsg.not_valid_last_name_err}" not found on the page'
-        assert ErrorMsg.not_valid_email_err in cv_page.page.content(), \
-            f'Text "{ErrorMsg.not_valid_email_err}" not found on the page'
-        assert ErrorMsg.not_valid_phone_number_err in cv_page.page.content(), \
-            f'Text "{ErrorMsg.not_valid_phone_number_err}" not found on the page'
-        assert ErrorMsg.no_gender_err in cv_page.page.content(), \
-            f'Text "{ErrorMsg.no_gender_err}" not found on the page'
-        assert ErrorMsg.no_attached_file_err in cv_page.page.content(), \
-            f'Text "{ErrorMsg.no_attached_file_err}" not found on the page'
-        assert ErrorMsg.no_pers_data_agreement_err in cv_page.page.content(), \
-            f'Text "{ErrorMsg.no_pers_data_agreement_err}" not found on the page'
+        with allure.step('press submit button with empty fields'):
+            cv_page.press_submit_button()
+
+        with allure.step('check error messages for all fields'):
+            assert ErrorMsg.not_valid_first_name_err in cv_page.page.content(), \
+                f'Text "{ErrorMsg.not_valid_first_name_err}" not found on the page'
+            assert ErrorMsg.not_valid_last_name_err in cv_page.page.content(), \
+                f'Text "{ErrorMsg.not_valid_last_name_err}" not found on the page'
+            assert ErrorMsg.not_valid_email_err in cv_page.page.content(), \
+                f'Text "{ErrorMsg.not_valid_email_err}" not found on the page'
+            assert ErrorMsg.not_valid_phone_number_err in cv_page.page.content(), \
+                f'Text "{ErrorMsg.not_valid_phone_number_err}" not found on the page'
+            assert ErrorMsg.no_gender_err in cv_page.page.content(), \
+                f'Text "{ErrorMsg.no_gender_err}" not found on the page'
+            assert ErrorMsg.no_attached_file_err in cv_page.page.content(), \
+                f'Text "{ErrorMsg.no_attached_file_err}" not found on the page'
+            assert ErrorMsg.no_pers_data_agreement_err in cv_page.page.content(), \
+                f'Text "{ErrorMsg.no_pers_data_agreement_err}" not found on the page'
+
+        with allure.step('check error messages for all fields'):
+            element_locations = [cv_page.first_name_fld.location,
+                                 cv_page.last_name_fld.location,
+                                 cv_page.email_fld.location,
+                                 cv_page.phone_fld.location,
+                                 cv_page.gender_male_box.location,
+                                 cv_page.gender_female_box.location,
+                                 cv_page.vacancy_drpdwn.location,
+                                 cv_page.agreement_box.location,
+                                 cv_page.submit_button.location]
+            list_is_increasing = all(element_locations[i]['y'] < element_locations[i + 1]['y'] for i in range(len(element_locations) - 1))
+            assert list_is_increasing
 
     @pytest.mark.parametrize('phone', [
         str(gen_random_number(length=6)),
@@ -178,29 +197,25 @@ class TestCVPage:
             f'Text "{ErrorMsg.not_valid_last_name_err}" not found on the page.' \
             f'Length {len(name)} for last name is unexpectedly valid'
 
-    @pytest.mark.parametrize('phone', [
-        str(gen_random_number(length=6)),
-        str(gen_random_number(length=13)),
-        gen_random_string(9, 'l'),
-        gen_random_string(9, 'm'),
-        str(gen_random_number(length=8)) + ' ',
-        ' ' + str(gen_random_number(length=8)),
-        str(gen_random_number(length=4)) + ' ' + str(gen_random_number(length=4)),
-        str(gen_random_number(length=4)) + '-' + str(gen_random_number(length=4)),
-    ], ids=['length less 7',
-            'length bigger 12',
-            'string with letters only',
-            'string with letters and digits',
-            'valid phone plus space',
-            'space plus valid phone',
-            'valid phone separated with space',
-            'phone separated with -'
+    @pytest.mark.parametrize('email', [
+        gen_random_string(7,'m'),
+        f'{gen_random_string(7, "m")}.{gen_random_string(3, "l")}',
+        f'{gen_random_string(7, "m")}@{gen_random_string(3, "l")}',
+        f'{gen_random_string(7, "m")}.{gen_random_string(3, "l")}@{gen_random_string(3, "l")}',
+        f'{gen_random_string(7, "m")}@.{gen_random_string(3, "l")}',
+
+    ], ids=['string with no @ and dot',
+            'string with dot only',
+            'string with @ only',
+            'string without dot after @',
+            'email without email-service domain after @',
+
             ])
     def test_invalid_email(self,
                            cv_page: CVPage,
-                           phone):
-        cv_page.insert_phone(phone)
+                           email):
+        cv_page.insert_email(email)
         cv_page.press_submit_button()
-        assert ErrorMsg.not_valid_phone_number_err in cv_page.page.content(), \
-            f'Text "{ErrorMsg.not_valid_phone_number_err}" not found on the page.' \
-            f'Phone {phone} is unexpectedly valid'
+        assert ErrorMsg.not_valid_email_err in cv_page.page.content(), \
+            f'Text "{ErrorMsg.not_valid_email_err}" not found on the page.' \
+            f'Phone {email} is unexpectedly valid'
