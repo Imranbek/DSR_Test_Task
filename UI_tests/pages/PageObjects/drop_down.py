@@ -1,4 +1,4 @@
-from UI_tests.helpers.PageObjects.base_object import BaseObject
+from UI_tests.pages.PageObjects.base_object import BaseObject
 
 
 class DropDown(BaseObject):

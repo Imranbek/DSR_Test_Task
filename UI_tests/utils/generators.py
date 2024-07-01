@@ -3,7 +3,6 @@ import string
 
 
 def gen_random_string(length: int, str_type: str) -> str:
-    characters = []
     if str_type == 'd':
         # Строка состоит из чисел
         characters = string.digits

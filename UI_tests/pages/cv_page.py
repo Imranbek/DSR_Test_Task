@@ -1,11 +1,11 @@
 import random
 
-from UI_tests.helpers.PageObjects.button import Button
-from UI_tests.helpers.PageObjects.checkbox import Checkbox
-from UI_tests.helpers.PageObjects.drop_down import DropDown
-from UI_tests.helpers.PageObjects.file_field import FileField
-from UI_tests.helpers.PageObjects.insert_field import InsertField
-from UI_tests.helpers.page import Page
+from UI_tests.pages.PageObjects.button import Button
+from UI_tests.pages.PageObjects.checkbox import Checkbox
+from UI_tests.pages.PageObjects.drop_down import DropDown
+from UI_tests.pages.PageObjects.file_field import FileField
+from UI_tests.pages.PageObjects.insert_field import InsertField
+from UI_tests.pages.page import Page
 
 
 class CVPage(Page):

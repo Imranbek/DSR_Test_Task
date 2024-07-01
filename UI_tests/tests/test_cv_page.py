@@ -3,8 +3,9 @@ import json
 import allure
 import pytest
 
-from UI_tests.helpers.cv_page import CVPage
-from UI_tests.helpers.errors import CVPageErrorMessages as ErrorMsg
+from UI_tests.pages.cv_page import CVPage
+from UI_tests.pages.errors import CVPageErrorMessages as ErrorMsg
+from UI_tests.utils.file_paths import different_cv_format
 from UI_tests.utils.generators import gen_random_string, gen_random_email, gen_random_number
 
 
@@ -103,6 +104,50 @@ class TestCVPage:
                 assert dialog_cv_form[key] == value, \
                     f'{key} value is incorrect ({dialog_cv_form[key]}). {value} awaits.'
 
+    @pytest.mark.parametrize('file_path',
+                             list(different_cv_format().values()),
+                             ids=list(different_cv_format().keys()))
+    def test_all_fields_are_filled_with_diff_cv_format(self,
+                                                       cv_page: CVPage,
+                                                       file_path: str):
+        with allure.step('prepare data for insert fields'):
+            first_name = gen_random_string(25, 'l')
+            last_name = gen_random_string(25, 'l')
+            email = gen_random_email()
+            phone = str(gen_random_number(length=9))
+            vacancy = 'QA Engineer'
+        with allure.step('prepare awaiting form'):
+            awaiting_cv_form = {
+                'FirstName': first_name,
+                'LastName': last_name,
+                'Email': email,
+                'PhoneNumber': phone,
+                'Gender': 'Male',
+                'Vacancy': vacancy,
+                'CV': {},
+                'Agreement': True
+            }
+
+        with allure.step('fill the fields'):
+            cv_page.insert_first_name(first_name)
+            cv_page.insert_last_name(last_name)
+            cv_page.insert_email(email)
+            cv_page.insert_phone(phone)
+            cv_page.pick_gender(awaiting_cv_form['Gender'])
+            cv_page.input_cv(file_path)
+            cv_page.pick_agreement()
+
+        with allure.step('press submit'):
+            cv_page.press_submit_button()
+
+        with allure.step('check the form'):
+            dialog_cv_form = json.loads(cv_page.dialog.message)
+            assert len(dialog_cv_form) == len(awaiting_cv_form), \
+                'Number of elements in CV form in alert is not matching with awaiting CV form'
+            for key, value in awaiting_cv_form.items():
+                assert dialog_cv_form[key] == value, \
+                    f'{key} value is incorrect - ({dialog_cv_form[key]}). {value} awaits.'
+
     def test_submit_no_fields_are_filled(self,
                                          cv_page: CVPage):
         with allure.step('check vacancy options'):
@@ -198,18 +243,19 @@ class TestCVPage:
             f'Length {len(name)} for last name is unexpectedly valid'
 
     @pytest.mark.parametrize('email', [
-        gen_random_string(7,'m'),
+        gen_random_string(7, 'm'),
         f'{gen_random_string(7, "m")}.{gen_random_string(3, "l")}',
         f'{gen_random_string(7, "m")}@{gen_random_string(3, "l")}',
         f'{gen_random_string(7, "m")}.{gen_random_string(3, "l")}@{gen_random_string(3, "l")}',
         f'{gen_random_string(7, "m")}@.{gen_random_string(3, "l")}',
+        f'{gen_random_string(50, "m")}@{gen_random_string(3, "l")}.{gen_random_string(3, "l")}',
 
     ], ids=['string with no @ and dot',
             'string with dot only',
             'string with @ only',
             'string without dot after @',
             'email without email-service domain after @',
-
+            'correct email with length > 50',
             ])
     def test_invalid_email(self,
                            cv_page: CVPage,
@@ -218,4 +264,4 @@ class TestCVPage:
         cv_page.press_submit_button()
         assert ErrorMsg.not_valid_email_err in cv_page.page.content(), \
             f'Text "{ErrorMsg.not_valid_email_err}" not found on the page.' \
-            f'Phone {email} is unexpectedly valid'
+            f'Email {email} is unexpectedly valid'

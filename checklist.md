@@ -15,7 +15,8 @@
     test_invalid_length_names
 6. Проверить список вакансий на полноту
     test_submit_no_fields_are_filled
-7. Подставить разные варианты форматов CV (pdf, txt, doc, docx)
+7. Подставить разные варианты форматов CV (pdf, txt, html, docx)
+   test_all_fields_are_filled_with_diff_cv_format
 
 Проблемы в текущей реализации:
 Длина email не ограничена разумным количеством знаков

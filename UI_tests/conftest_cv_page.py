@@ -1,6 +1,6 @@
 import pytest
 
-from UI_tests.helpers.cv_page import CVPage
+from UI_tests.pages.cv_page import CVPage
 
 
 @pytest.fixture
