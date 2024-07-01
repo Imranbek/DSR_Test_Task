@@ -4,13 +4,13 @@ import string
 
 def gen_random_string(length: int, str_type: str) -> str:
     if str_type == 'd':
-        # Строка состоит из чисел
+        # Generate string with digits
         characters = string.digits
     elif str_type == 'l':
-        # Строка состоит из букв всех регистров
+        # Generate string with latin letters in both cases
         characters = string.ascii_letters
     elif str_type == 'm':
-        # Строка состоит из букв всех регистров и чисел
+        # Generate string with digits and latin letters
         characters = string.ascii_letters + string.digits
     else:
         raise ValueError("Invalid str_type. Use 'n' for numbers, 'l' for letters, or 'm' for mixed.")

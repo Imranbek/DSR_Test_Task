@@ -8,9 +8,49 @@ from UI_tests.pages.errors import CVPageErrorMessages as ErrorMsg
 from UI_tests.utils.file_paths import different_cv_format
 from UI_tests.utils.generators import gen_random_string, gen_random_email, gen_random_number
 
-
+@allure.feature('CVPage tests')
 class TestCVPage:
-    @allure.story('Все поля заполнены валидными данными + перебор гендеров')
+    @allure.story('All fields empty + check order of elements, '
+                  'error messages, list of vacancies')
+    def test_submit_no_fields_are_filled(self,
+                                         cv_page: CVPage):
+        with allure.step('check vacancy options'):
+            assert cv_page.vacancy_drpdwn.option_values == cv_page.VACANCY_OPTIONS, \
+                f'List of vacancy options ({cv_page.vacancy_drpdwn.option_values}) does not match with awaits list "{cv_page.VACANCY_OPTIONS}"'
+
+        with allure.step('press submit button with empty fields'):
+            cv_page.press_submit_button()
+
+        with allure.step('check error messages for all fields'):
+            assert ErrorMsg.not_valid_first_name_err in cv_page.page.content(), \
+                f'Text "{ErrorMsg.not_valid_first_name_err}" not found on the page'
+            assert ErrorMsg.not_valid_last_name_err in cv_page.page.content(), \
+                f'Text "{ErrorMsg.not_valid_last_name_err}" not found on the page'
+            assert ErrorMsg.not_valid_email_err in cv_page.page.content(), \
+                f'Text "{ErrorMsg.not_valid_email_err}" not found on the page'
+            assert ErrorMsg.not_valid_phone_number_err in cv_page.page.content(), \
+                f'Text "{ErrorMsg.not_valid_phone_number_err}" not found on the page'
+            assert ErrorMsg.no_gender_err in cv_page.page.content(), \
+                f'Text "{ErrorMsg.no_gender_err}" not found on the page'
+            assert ErrorMsg.no_attached_file_err in cv_page.page.content(), \
+                f'Text "{ErrorMsg.no_attached_file_err}" not found on the page'
+            assert ErrorMsg.no_pers_data_agreement_err in cv_page.page.content(), \
+                f'Text "{ErrorMsg.no_pers_data_agreement_err}" not found on the page'
+
+        with allure.step('check error messages for all fields'):
+            element_locations = [cv_page.first_name_fld.location,
+                                 cv_page.last_name_fld.location,
+                                 cv_page.email_fld.location,
+                                 cv_page.phone_fld.location,
+                                 cv_page.gender_male_box.location,
+                                 cv_page.gender_female_box.location,
+                                 cv_page.vacancy_drpdwn.location,
+                                 cv_page.agreement_box.location,
+                                 cv_page.submit_button.location]
+            list_is_increasing = all(element_locations[i]['y'] < element_locations[i + 1]['y'] for i in range(len(element_locations) - 1))
+            assert list_is_increasing
+
+    @allure.story('All values valid + try different genders')
     @pytest.mark.parametrize('gender', [
         'Male',
         'Female',
@@ -59,7 +99,7 @@ class TestCVPage:
                 assert dialog_cv_form[key] == value, \
                     f'{key} value is incorrect - ({dialog_cv_form[key]}). {value} awaits.'
 
-    @allure.story('Все поля заполнены валидными данными + перебор должностей')
+    @allure.story('All values valid + try different vacancies')
     @pytest.mark.parametrize('vacancy', [
         *CVPage.VACANCY_OPTIONS
     ])
@@ -105,7 +145,7 @@ class TestCVPage:
                 assert dialog_cv_form[key] == value, \
                     f'{key} value is incorrect ({dialog_cv_form[key]}). {value} awaits.'
 
-    @allure.story('Все поля заполнены валидными данными + перебор форматов файлов')
+    @allure.story('All values valid + try different file format')
     @pytest.mark.parametrize('file_path',
                              list(different_cv_format().values()),
                              ids=list(different_cv_format().keys()))
@@ -150,47 +190,7 @@ class TestCVPage:
                 assert dialog_cv_form[key] == value, \
                     f'{key} value is incorrect - ({dialog_cv_form[key]}). {value} awaits.'
 
-    @allure.story('Все поля пустые + проверить порядок элементов, '
-                  'ошибки на странице, список должностей')
-    def test_submit_no_fields_are_filled(self,
-                                         cv_page: CVPage):
-        with allure.step('check vacancy options'):
-            assert cv_page.vacancy_drpdwn.option_values == cv_page.VACANCY_OPTIONS, \
-                f'List of vacancy options ({cv_page.vacancy_drpdwn.option_values}) does not match with awaits list "{cv_page.VACANCY_OPTIONS}"'
-
-        with allure.step('press submit button with empty fields'):
-            cv_page.press_submit_button()
-
-        with allure.step('check error messages for all fields'):
-            assert ErrorMsg.not_valid_first_name_err in cv_page.page.content(), \
-                f'Text "{ErrorMsg.not_valid_first_name_err}" not found on the page'
-            assert ErrorMsg.not_valid_last_name_err in cv_page.page.content(), \
-                f'Text "{ErrorMsg.not_valid_last_name_err}" not found on the page'
-            assert ErrorMsg.not_valid_email_err in cv_page.page.content(), \
-                f'Text "{ErrorMsg.not_valid_email_err}" not found on the page'
-            assert ErrorMsg.not_valid_phone_number_err in cv_page.page.content(), \
-                f'Text "{ErrorMsg.not_valid_phone_number_err}" not found on the page'
-            assert ErrorMsg.no_gender_err in cv_page.page.content(), \
-                f'Text "{ErrorMsg.no_gender_err}" not found on the page'
-            assert ErrorMsg.no_attached_file_err in cv_page.page.content(), \
-                f'Text "{ErrorMsg.no_attached_file_err}" not found on the page'
-            assert ErrorMsg.no_pers_data_agreement_err in cv_page.page.content(), \
-                f'Text "{ErrorMsg.no_pers_data_agreement_err}" not found on the page'
-
-        with allure.step('check error messages for all fields'):
-            element_locations = [cv_page.first_name_fld.location,
-                                 cv_page.last_name_fld.location,
-                                 cv_page.email_fld.location,
-                                 cv_page.phone_fld.location,
-                                 cv_page.gender_male_box.location,
-                                 cv_page.gender_female_box.location,
-                                 cv_page.vacancy_drpdwn.location,
-                                 cv_page.agreement_box.location,
-                                 cv_page.submit_button.location]
-            list_is_increasing = all(element_locations[i]['y'] < element_locations[i + 1]['y'] for i in range(len(element_locations) - 1))
-            assert list_is_increasing
-
-    @allure.story('Невалидные номера телефонов')
+    @allure.story('Non valid phone numbers')
     @pytest.mark.parametrize('phone', [
         str(gen_random_number(length=6)),
         str(gen_random_number(length=13)),
@@ -218,7 +218,7 @@ class TestCVPage:
             f'Text "{ErrorMsg.not_valid_phone_number_err}" not found on the page.' \
             f'Phone {phone} is unexpectedly valid'
 
-    @allure.story('Валидные номера телефонов')
+    @allure.story('Valid phone numbers')
     @pytest.mark.parametrize('phone', [
         str(gen_random_number(length=7)),
         str(gen_random_number(length=12)),
@@ -234,7 +234,7 @@ class TestCVPage:
             f'Text "{ErrorMsg.not_valid_phone_number_err}" was found on the page' \
             f'Phone {phone} is unexpectedly invalid'
 
-    @allure.story('Невалидные имена (по длине)')
+    @allure.story('Non valid names by length')
     def test_invalid_length_names(self,
                                   cv_page: CVPage):
         valid_length = 25
@@ -249,7 +249,7 @@ class TestCVPage:
             f'Text "{ErrorMsg.not_valid_last_name_err}" not found on the page.' \
             f'Length {len(name)} for last name is unexpectedly valid'
 
-    @allure.story('Невалидные emal')
+    @allure.story('Non valid email')
     @pytest.mark.parametrize('email', [
         gen_random_string(7, 'm'),
         f'{gen_random_string(7, "m")}.{gen_random_string(3, "l")}',
