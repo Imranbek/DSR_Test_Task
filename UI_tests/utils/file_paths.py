@@ -2,6 +2,7 @@ from pathlib import Path
 
 project_root = Path(__file__).resolve().parent
 
+
 def different_cv_format():
     base_root = project_root / 'test_documents'
     file_paths = {'TXT_file': str(base_root / 'CVExample.txt'),

@@ -6,5 +6,4 @@ class FileField(BaseObject):
         super().__init__(page, selector)
 
     def input_file(self, file_path: str):
-        # self.element.click()
         self.element.set_input_files(file_path)
