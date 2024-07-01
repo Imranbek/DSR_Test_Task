@@ -10,7 +10,7 @@ from UI_tests.utils.generators import gen_random_string, gen_random_email, gen_r
 
 
 class TestCVPage:
-
+    @allure.story('Все поля заполнены валидными данными + перебор гендеров')
     @pytest.mark.parametrize('gender', [
         'Male',
         'Female',
@@ -59,6 +59,7 @@ class TestCVPage:
                 assert dialog_cv_form[key] == value, \
                     f'{key} value is incorrect - ({dialog_cv_form[key]}). {value} awaits.'
 
+    @allure.story('Все поля заполнены валидными данными + перебор должностей')
     @pytest.mark.parametrize('vacancy', [
         *CVPage.VACANCY_OPTIONS
     ])
@@ -104,6 +105,7 @@ class TestCVPage:
                 assert dialog_cv_form[key] == value, \
                     f'{key} value is incorrect ({dialog_cv_form[key]}). {value} awaits.'
 
+    @allure.story('Все поля заполнены валидными данными + перебор форматов файлов')
     @pytest.mark.parametrize('file_path',
                              list(different_cv_format().values()),
                              ids=list(different_cv_format().keys()))
@@ -148,6 +150,8 @@ class TestCVPage:
                 assert dialog_cv_form[key] == value, \
                     f'{key} value is incorrect - ({dialog_cv_form[key]}). {value} awaits.'
 
+    @allure.story('Все поля пустые + проверить порядок элементов, '
+                  'ошибки на странице, список должностей')
     def test_submit_no_fields_are_filled(self,
                                          cv_page: CVPage):
         with allure.step('check vacancy options'):
@@ -186,6 +190,7 @@ class TestCVPage:
             list_is_increasing = all(element_locations[i]['y'] < element_locations[i + 1]['y'] for i in range(len(element_locations) - 1))
             assert list_is_increasing
 
+    @allure.story('Невалидные номера телефонов')
     @pytest.mark.parametrize('phone', [
         str(gen_random_number(length=6)),
         str(gen_random_number(length=13)),
@@ -213,6 +218,7 @@ class TestCVPage:
             f'Text "{ErrorMsg.not_valid_phone_number_err}" not found on the page.' \
             f'Phone {phone} is unexpectedly valid'
 
+    @allure.story('Валидные номера телефонов')
     @pytest.mark.parametrize('phone', [
         str(gen_random_number(length=7)),
         str(gen_random_number(length=12)),
@@ -228,6 +234,7 @@ class TestCVPage:
             f'Text "{ErrorMsg.not_valid_phone_number_err}" was found on the page' \
             f'Phone {phone} is unexpectedly invalid'
 
+    @allure.story('Невалидные имена (по длине)')
     def test_invalid_length_names(self,
                                   cv_page: CVPage):
         valid_length = 25
@@ -242,6 +249,7 @@ class TestCVPage:
             f'Text "{ErrorMsg.not_valid_last_name_err}" not found on the page.' \
             f'Length {len(name)} for last name is unexpectedly valid'
 
+    @allure.story('Невалидные emal')
     @pytest.mark.parametrize('email', [
         gen_random_string(7, 'm'),
         f'{gen_random_string(7, "m")}.{gen_random_string(3, "l")}',
